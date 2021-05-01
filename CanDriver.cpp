@@ -1,7 +1,4 @@
 #include "CanDriver.h"
-#define  NULL_PTR  ((void *)0)
-#define MODE_CHANGED             1U
-#define MODE_NOT_CHANGED         0U
 
 
 
@@ -146,7 +143,8 @@ Std_ReturnType Can_SetControllerMode(uint8_t Controller, Can_StateTransitionType
 	uint8_t        Can_DevErrorType;
 	Std_ReturnType  Status;
 	Can_DriverStateType Driver_state;
-	uint8_t state_transition_flag[2] = { MODE_NOT_CHANGED, MODE_NOT_CHANGED }
+	uint8_t state_transition_flag[2] = { MODE_NOT_CHANGED, MODE_NOT_CHANGED };
+	uint8_t InterruptStatus[2] = { INTERRUPT_ENABLE, INTERRUPT_DISABLE };
 
 
 	/*  Check for the initialization of the Driver   */
@@ -176,13 +174,13 @@ Std_ReturnType Can_SetControllerMode(uint8_t Controller, Can_StateTransitionType
 					if (OUT_CRITICAL_SECTION() && InterruptStatus[Controller] != INTERRUPT_ENABLE)
 					{
 
-						CANEnable(CanController[Controller].CanControllerBaseAddress);
+						CANEnable(RCC_APB1_ENABLE);
 						InterruptStatus[Controller] = INTERRUPT_ENABLE;
 					}
 					/* if the interrupt has been enabled before hand */
 					else
 					{
-						CANEnable(CanControllerBaseAddress);
+						CANEnable(RCC_APB1_ENABLE);
 
 						/*  Changing the controller mode  */
 						Can_ControllerMode = CAN_CS_STARTED;
@@ -193,13 +191,13 @@ Std_ReturnType Can_SetControllerMode(uint8_t Controller, Can_StateTransitionType
 					/* if the interrupt has been disabled before hand */
 					if (IN_CRITICAL_SECTION())
 					{
-						CANDisable(CanControllerBaseAddress);
+						CANDisable(RCC_APB1_ENABLE);
 					}
 					/*  if this is the first time to disabled the interrupt  */
 					else
 					{
 						InterruptStatus[Controller] = INTERRUPT_DISABLE;
-						CANDisable(CanControllerBaseAddress);
+						CANDisable(RCC_APB1_ENABLE);
 
 					}
 
@@ -219,14 +217,14 @@ Std_ReturnType Can_SetControllerMode(uint8_t Controller, Can_StateTransitionType
 					if (IN_CRITICAL_SECTION())
 					{
 
-						CANDisable(CanControllerBaseAddress);
+						CANDisable(RCC_APB1_ENABLE);
 
 					}
 					/*  if this is the first time to disabled the interrupt  */
 					else
 					{
 						InterruptStatus = INTERRUPT_DISABLE;
-						CANDisable(CanControllerBaseAddress);
+						CANDisable(RCC_APB1_ENABLE);
 
 					}
 
